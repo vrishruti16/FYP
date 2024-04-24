@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// schema.prisma
+model User {
+  id             Int           @id @default(autoincrement())
+  fullname       String
+  email          String        @unique
+  password       String
+  //bio            String
+  roleId         Int
+  role           Role          @relation(fields: [roleId], references: [roleId])
+  notifications  Notifications[]
+  recipe        Recipe[]
+  category     Category[]
+  payments       Payments[]
+  favourites      Favourites[]
+  ratings        Ratings[]
+}
+
+model Role {
+  roleId   Int    @id @default(autoincrement())
+  name     String
+  users    User[]
+}
+
+model Notifications {
+  notificationsId Int   @id @default(autoincrement())
+  message         String
+  userId          Int
+  user            User  @relation(fields: [userId], references: [id])
+}
+
+model Recipe {
+  recipeId    Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [categoryId])
+  // ingredientsId   Int
+  // ingredients   Ingredients @relation(fields: [ingredientsId], references: [ingredientsId])
+  title       String
+  description String
+  steps       String
+  image       String
+  isPremium   Boolean  @default(false) // Indicates whether the recipe is premium  ingredients RecipeIngredients[]
+  ratings     Ratings[]
+  favourites Favourites[]
+}
+
+model Category {
+  categoryId   Int      @id @default(autoincrement())
+  name       String
+  user      User[]
+  recipe Recipe[]
+}
+
+model Ingredients {
+  ingredientsId     Int      @id @default(autoincrement())
+  name          String
+  quantity      String
+  measurement_unit      String
+  //recipe        Recipe[]
+  recipe RecipeIngredients[]
+}
+
+model RecipeIngredients{
+  recipeIngredientsId Int  @id @default(autoincrement())
+  recipeId     Int
+  ingredientsId Int
+  ingredients Ingredients @relation(fields: [ingredientsId], references: [ingredientsId]) 
+  quantity      String
+  measurement_unit      String
+}
+
+model Payments {
+  paymentId Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  fullName       String   
+  subscription   String   
+  amount    Float
+  paymentStatus    String
+}
+
+model Favourites {
+  favouriteId Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  recipeId    Int
+  recipe      Recipe   @relation(fields: [recipeId], references: [recipeId])
+  favouriteList    String
+
+}
+
+// model Premium {
+//   premiumValue     Boolean    @unique
+//   userId      Int
+//   user        User   @relation(fields: [userId], references: [id])
+//   recipeId    Int
+//   recipe      Recipe[]
+//   payment     Payments[]
+//   recipeIngredients   RecipeIngredients[]
+// }
+
+model Ratings {
+  ratingId Int      @id @default(autoincrement())
+  userId   Int
+  user     User     @relation(fields: [userId], references: [id])
+  recipeId Int
+  recipe   Recipe   @relation(fields: [recipeId], references: [recipeId])
+  rating    Int
+  review   String
+}
